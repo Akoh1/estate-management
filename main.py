@@ -1,7 +1,20 @@
 from fastapi import Depends, FastAPI
-from estate_management.resident.routers import estate
+from estate_management.resident.routers import estate, users
+from estate_management.resident import models
+from .database import engine, SessionLocal
 
 app = FastAPI()
+models.Base.metadata.create_all(bind=engine)
+
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 # from .dependencies import get_query_token, get_token_header
 # from .internal import admin
@@ -21,6 +34,7 @@ app = FastAPI()
 # )
 
 app.include_router(estate.router)
+app.include_router(users.router)
 
 
 @app.get("/")
