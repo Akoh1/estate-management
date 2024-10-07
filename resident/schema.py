@@ -17,7 +17,16 @@ class UserCreate(UserBase):
     password: str
 
 
-class User(UserBase):
+class ResidentOrSecurityCreate(UserCreate):
+    is_security: bool = False
+    is_resident: bool
+    estate_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class UserDetails(UserBase):
     id: int
     is_security: bool
     is_admin: bool
@@ -27,6 +36,16 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+# class SecurityUserCreate(UserBase):
+#     id: int
+#     is_security: bool
+#     estate_id: int
+#     created_date: datetime.datetime
+#
+#     class Config:
+#         orm_mode = True
 
 
 class CreateEstate(UserCreate):
@@ -39,3 +58,17 @@ class TokenCreate(BaseModel):
     refresh_token: str
     status: bool
     created_date: datetime.datetime
+
+
+class Visitor(BaseModel):
+    name: str
+    phone: str
+    resident_id: int
+
+
+class VisitorDetails(Visitor):
+    id: int
+    access_code: str
+    access_granted: bool
+    created_date: datetime.datetime
+    write_date: datetime.datetime

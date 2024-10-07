@@ -1,4 +1,6 @@
 import bcrypt
+import string
+import random
 from typing import List
 from typing import Optional
 import datetime
@@ -7,12 +9,14 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 from passlib.context import CryptContext
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-from ..database import Base
+# from ..database import Base
+Base = declarative_base()
 
 
 class Estate(Base):
@@ -50,6 +54,8 @@ class User(Base):
     estate = relationship("Estate", back_populates="users")
     created_date = Column(DateTime, default=datetime.datetime.now)
     active = Column(Boolean, default=False)
+    code = Column(String)
+    visitors = relationship("Visitor", back_populates="resident")
 
     def set_password(self, password):
 
@@ -68,3 +74,24 @@ class TokenTable(Base):
     refresh_token = Column(String(450), nullable=False)
     status = Column(Boolean)
     created_date = Column(DateTime, default=datetime.datetime.now)
+
+
+class Visitor(Base):
+    __tablename__ = "visitor"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    phone = Column(String, unique=True, index=True)
+    resident_id = Column(Integer, ForeignKey("users.id"))
+    resident = relationship("User", back_populates="visitors")
+    access_code = Column(String)
+    access_granted = Column(Boolean, default=False)
+    created_date = Column(DateTime, default=datetime.datetime.now)
+    write_date = Column(DateTime, default=datetime.datetime.now)
+
+    def generate_access_code(self, length=4):
+        letters = string.ascii_uppercase
+        numbers = string.digits
+        random_numbers = letters + numbers
+        code = "".join(random.choice(random_numbers) for _ in range(length))
+        return code

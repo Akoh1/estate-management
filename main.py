@@ -1,4 +1,6 @@
 from fastapi import Depends, FastAPI
+
+# from .resident.routers import estate, users
 from estate_management.resident.routers import estate, users
 from estate_management.resident import models
 from .database import engine, SessionLocal
